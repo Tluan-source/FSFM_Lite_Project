@@ -1,0 +1,31 @@
+﻿# Dataset
+data/
+dataset/
+datasets/
+
+# CelebA Spoof
+data/CelebA_Spoof/
+
+# Images
+*.jpg
+*.png
+*.jpeg
+
+# Bounding Box
+*_BB.txt
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model weights
+*.pth
+*.pt
+*.ckpt
+
+# Virtual Environment
+venv/
+.venv/
