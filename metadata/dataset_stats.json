@@ -1,0 +1,6 @@
+{
+    "train_samples": 244274,
+    "test_samples": 25758,
+    "train_live": 82727,
+    "train_spoof": 161547
+}
