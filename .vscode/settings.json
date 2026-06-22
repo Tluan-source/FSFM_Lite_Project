@@ -1,0 +1,19 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+
+    "files.watcherExclude": {
+        "**/data/**": true,
+        "**/metadata/**": true,
+        "**/outputs/**": true
+    },
+
+    "search.exclude": {
+        "**/data/**": true,
+        "**/metadata/**": true,
+        "**/outputs/**": true
+    },
+
+    "files.exclude": {
+        "**/.ipynb_checkpoints": true
+    }
+}
