@@ -7,6 +7,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?logo=pytorch&logoColor=white)
 ![DINOv2](https://img.shields.io/badge/Backbone-DINOv2_ViT--B%2F14-4285F4)
+![Status](https://img.shields.io/badge/Status-Trained_%E2%9C%85-brightgreen)
 ![License](https://img.shields.io/badge/License-Academic-green)
 
 </div>
@@ -15,6 +16,7 @@
 
 ## 📋 Table of Contents
 
+- [Project Status](#-project-status)
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
@@ -22,8 +24,26 @@
 - [Dataset](#dataset)
 - [Pipeline](#pipeline)
 - [Usage](#usage)
+- [Real-Time Webcam Demo](#-real-time-webcam-demo)
 - [Model Details](#model-details)
 - [References](#references)
+
+---
+
+## 🚦 Project Status
+
+| Phase | Status | Details |
+|-------|--------|---------|
+| ✅ Dataset Preparation | **Done** | CelebA-Spoof parsed, metadata CSVs created (270K samples) |
+| ✅ Face Processing | **Done** | Cropping pipeline with RetinaFace bboxes + 20% padding |
+| ✅ Feature Extraction | **Done** | DINOv2 ViT-B/14 integrated, CLS + 256 patch tokens extracted |
+| ✅ ThreeC Module | **Done** | Spatial / Feature / Semantic consistency branches + Fusion |
+| ✅ Full Model Assembly | **Done** | End-to-end forward pass verified, ~98M parameters |
+| ✅ **Model Training** | **Done** | `best_fsfm_lite.pth` saved (~460 MB) |
+| ✅ **Fine-tuning** | **Done** | `best_fsfm_lite_finetuned.pth` saved (~515 MB) |
+| ✅ **Real-time Demo** | **Done** | Webcam inference via `src/main.py` |
+| ⏳ Evaluation & Metrics | In Progress | ACER / HTER / EER / ROC not yet computed |
+| ⏳ Configuration Files | Pending | `configs/` directory still empty |
 
 ---
 
@@ -35,8 +55,10 @@
 
 - 🧠 **Foundation Model Backbone**: Utilizes Facebook's DINOv2 ViT-B/14 pretrained model for robust feature extraction
 - 🔍 **Three Consistencies Module (ThreeC)**: Novel module analyzing spatial, feature, and semantic consistency in parallel
-- 📊 **CelebA-Spoof Dataset**: Trained and evaluated on the large-scale CelebA-Spoof benchmark (~270K images)
+- 📊 **CelebA-Spoof Dataset**: Trained on the large-scale CelebA-Spoof benchmark (~270K images)
 - ⚡ **~98M Parameters**: Full model with DINOv2 backbone + ThreeC + Classifier Head
+- 🎥 **Real-Time Demo**: Live webcam face anti-spoofing with bounding box overlay and confidence score
+- 💾 **Trained Checkpoints**: Base model + fine-tuned model weights available
 
 ---
 
@@ -125,6 +147,7 @@ FSFM_Lite_Project/
 ├── .gitignore                         # Git ignore rules
 │
 ├── src/                               # Source code (reusable modules)
+│   ├── main.py                        # ⭐ Real-time webcam demo (inference entry point)
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── dino_backbone.py           # DINOv2 ViT-B/14 wrapper
@@ -132,8 +155,11 @@ FSFM_Lite_Project/
 │   │   ├── classifier_head.py         # Binary classification head
 │   │   └── fsfm_lite.py              # Full FSFM-Lite model assembly
 │   │
-│   └── datasets/
-│       └── celeba_spoof_dataset.py    # CelebA-Spoof Dataset & face cropping
+│   ├── datasets/
+│   │   └── celeba_spoof_dataset.py    # CelebA-Spoof Dataset & face cropping
+│   │
+│   ├── losses/                        # Loss functions (planned)
+│   └── utils/                         # Evaluation utilities (planned)
 │
 ├── notebooks/                         # Step-by-step development notebooks
 │   ├── 01_dataset_preparation.ipynb   # Data loading, exploration & metadata creation
@@ -153,12 +179,15 @@ FSFM_Lite_Project/
 │   ├── test_df.csv                    # Test set metadata (25,758 samples)
 │   └── dataset_stats.json            # Dataset statistics
 │
-├── configs/                           # Configuration files (placeholder)
+├── configs/                           # Configuration files (planned)
 ├── docs/                              # Project documentation
 │   ├── Architecture Design Document.docx
 │   └── Kế hoạch Dự Án.docx
 │
 └── outputs/                           # Training outputs
+    ├── checkpoints/                   # ⭐ Saved model weights
+    │   ├── best_fsfm_lite.pth             (~460 MB) — base trained model
+    │   └── best_fsfm_lite_finetuned.pth   (~515 MB) — fine-tuned model
     ├── figures/                       # Visualization outputs
     ├── logs/                          # Training logs
     └── reports/                       # Evaluation reports
@@ -196,7 +225,7 @@ pip install pandas numpy opencv-python matplotlib seaborn Pillow tqdm pyarrow
 |---------|---------|---------|
 | `torch` | ≥ 2.0 | Deep learning framework |
 | `torchvision` | ≥ 0.15 | Image transforms & utilities |
-| `opencv-python` | ≥ 4.0 | Image reading & processing |
+| `opencv-python` | ≥ 4.0 | Image reading, webcam capture & face detection |
 | `pandas` | ≥ 1.5 | Data manipulation |
 | `numpy` | ≥ 1.24 | Numerical computing |
 | `matplotlib` | ≥ 3.7 | Visualization |
@@ -289,8 +318,8 @@ The project is organized as a sequential pipeline across 5 notebooks:
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Step 4: ThreeC Module (04_threec_module)                │
-│  Spatial + Feature + Semantic Consistency → Fusion       │
+│  Step 4: ThreeC Module (04_threec_module)               │
+│  Spatial + Feature + Semantic Consistency → Fusion      │
 │  Enhanced tokens: [B, 256, 768]                         │
 └────────────────────────┬────────────────────────────────┘
                          │
@@ -299,6 +328,20 @@ The project is organized as a sequential pipeline across 5 notebooks:
 │  Step 5: Full Model (05_fsfm_lite_model)                │
 │  DINOv2 → ThreeC → Mean Pooling → Classifier → Logits  │
 │  Output: [B, 2] (Live vs Spoof)                         │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Training & Fine-tuning  ✅                              │
+│  best_fsfm_lite.pth (~460 MB)                           │
+│  best_fsfm_lite_finetuned.pth (~515 MB)                 │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│  Real-Time Webcam Demo  ✅  (src/main.py)               │
+│  OpenCV face detection → FSFM-Lite inference            │
+│  → LIVE / SPOOF label + confidence score overlay        │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -316,6 +359,11 @@ from src.datasets.celeba_spoof_dataset import crop_face
 
 # Initialize model
 model = FSFMLite()
+
+# Load trained weights
+checkpoint = torch.load("outputs/checkpoints/best_fsfm_lite_finetuned.pth",
+                        map_location="cpu")
+model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()
 
 # Define transforms (ImageNet normalization)
@@ -335,9 +383,11 @@ image = transform(face).unsqueeze(0)  # [1, 3, 224, 224]
 
 # Inference
 with torch.no_grad():
-    logits = model(image)           # [1, 2]
-    pred = logits.argmax(dim=1)     # 0=Live, 1=Spoof
-    print("Prediction:", "Spoof" if pred.item() == 1 else "Live")
+    logits = model(image)                       # [1, 2]
+    probs = torch.softmax(logits, dim=1)
+    pred = logits.argmax(dim=1).item()          # 0=Live, 1=Spoof
+    conf = probs.max().item()
+    print(f"Prediction: {'Spoof' if pred == 1 else 'Live'} ({conf:.2%})")
 ```
 
 ### Using the Dataset
@@ -393,7 +443,64 @@ with torch.no_grad():
 
 ---
 
+## 🎥 Real-Time Webcam Demo
+
+`src/main.py` provides a live demo using your system webcam. It uses **OpenCV's Haar Cascade** for face detection, then feeds each detected face through the trained FSFM-Lite model.
+
+### Run the Demo
+
+Make sure the trained checkpoint exists at `outputs/checkpoints/best_fsfm_lite.pth`, then:
+
+```bash
+python src/main.py
+```
+
+### How it works
+
+```
+Webcam Frame
+    │
+    ▼
+OpenCV Haar Cascade Face Detector
+    │  (scaleFactor=1.1, minNeighbors=5, minSize=80×80)
+    ▼
+Crop face region with 20% padding
+    │
+    ▼
+BGR → RGB → Resize(224×224) → Normalize
+    │
+    ▼
+FSFMLite.forward(image)
+    │
+    ▼
+Softmax → class prediction + confidence
+    │
+    ▼
+Draw bounding box + label on frame
+    ├── 🟢 LIVE  XX.XX%   (green box)
+    └── 🔴 SPOOF XX.XX%   (red box)
+```
+
+Press **`ESC`** to exit the demo.
+
+---
+
 ## Model Details
+
+### Saved Checkpoints
+
+| File | Size | Description |
+|------|------|-------------|
+| `best_fsfm_lite.pth` | ~460 MB | Base model trained on CelebA-Spoof |
+| `best_fsfm_lite_finetuned.pth` | ~515 MB | Fine-tuned version (improved performance) |
+
+Checkpoint format:
+```python
+{
+    "model_state_dict": { ... }   # model weights
+    # may also contain: optimizer_state_dict, epoch, loss, accuracy
+}
+```
 
 ### Parameter Count
 
