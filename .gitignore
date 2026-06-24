@@ -6,11 +6,6 @@ datasets/
 # CelebA Spoof
 data/CelebA_Spoof/
 
-# Images
-*.jpg
-*.png
-*.jpeg
-
 # Bounding Box
 *_BB.txt
 
