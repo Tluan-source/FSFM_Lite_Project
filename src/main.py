@@ -19,6 +19,7 @@ print(f"Device: {device}")
 
 MODEL_PATH = (
     PROJECT_ROOT
+    / "outputs"
     / "checkpoints"
     / "best_fsfm_lite.pth"
 )
